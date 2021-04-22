@@ -1,5 +1,11 @@
 #libs here
 
+def input_generator(gen1, gen2):
+    x1 = gen1[0]
+    x2 = gen2[0]
+    y = gen1[1]
+
+    return [x1, x2], y
 
 input1 = orig_images
 input2 = trans_images
