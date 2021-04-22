@@ -1,4 +1,8 @@
-#libs here
+import tensorflow as tf
+from tensorflow import keras as K
+import efficientnet.keras as efn
+from keras.applications import MobileNet, MobileNetV2
+from keras.applications import DenseNet201
 
 def input_generator(gen1, gen2):
     x1 = gen1[0]
@@ -29,13 +33,18 @@ combined_generator = map(input_generator, input1, input2)
 
 
 
-x = mobilenet
+x = tf.K.applications.mobilenet( weights = 'imagenet' , 
+                                include_top = False,
+                                 input_shape = (224,224,3))
 
-y = efficientnet
+y = efn( weights = 'imagenet',
+         include_top = False,
+         input_shape = (224,224,3))
+
 
 z = K.applications.DenseNet201(     weights = 'imagenet',
                                     include_top = False,
-                                    input_shape = (224, 224, 3)))
+                                    input_shape = (224, 224, 3))
 
 
 ^^^ Make sure classification layers are rmoved. Should be as simple as passing "include_top=False" to the model call
