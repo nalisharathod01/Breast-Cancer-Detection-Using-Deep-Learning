@@ -1,8 +1,8 @@
 import tensorflow as tf
 from tensorflow import keras as K
 import efficientnet.keras as efn
-from keras.applications import MobileNet, MobileNetV2
-from keras.applications import DenseNet201
+from keras.applications import MobileNet, DenseNet201
+
 
 def input_generator(gen1, gen2):
     x1 = gen1[0]
