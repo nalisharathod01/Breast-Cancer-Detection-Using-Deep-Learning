@@ -7,9 +7,14 @@ def input_generator(gen1, gen2):
 
     return [x1, x2], y
 
+## For these two we should be able to use the same ImDataGen we already used.
 input1 = orig_images
 input2 = trans_images
-^^ These will need to be modified to match the map generator I shared in the chat
+
+## This will be the actual input and labels for the model
+combined_generator = map(input_generator, input1, input2)
+
+
 
 x = mobilenet
 
