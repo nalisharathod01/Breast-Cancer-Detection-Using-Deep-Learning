@@ -33,7 +33,7 @@ combined_generator = map(input_generator, input1, input2)
 
 
 
-x = tf.K.applications.mobilenet( weights = 'imagenet' , 
+x = tf.K.applications.mobilenet( weights = 'imagenet' ,
                                 include_top = False,
                                  input_shape = (224,224,3))
 
@@ -54,6 +54,9 @@ combinedinput = concatenate([x.output, y.output, z.output])
 
 classifier = MAKE FULLY CONNECTED LAYERS AND CLASS. Layers here
 
-model = Model(inputs = [x.output, y.output, z.output], outputs = classifier)
+model = Model(inputs = [x.input, y.input, z.input], outputs = classifier)
 
 model.compile(hyperparams here)
+
+model.fit(x=combined_generator[0], y=combined_generator[1], validation_data = (NEEDTOMAKEGENERATORFORHERE),
+            epochs=100, batch_size=10)
