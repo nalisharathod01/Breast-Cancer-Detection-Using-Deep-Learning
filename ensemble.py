@@ -9,7 +9,9 @@ x = mobilenet
 
 y = efficientnet
 
-z = densenet
+z = K.applications.DenseNet201(     weights = 'imagenet',
+                                    include_top = False,
+                                    input_shape = (224, 224, 3)))
 
 
 ^^^ Make sure classification layers are rmoved. Should be as simple as passing "include_top=False" to the model call
