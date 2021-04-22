@@ -1,3 +1,4 @@
 **/images
-**/ft_images
-**/gray_ft_images
+**/filter_gaussian
+**/logs_gauss
+**/model_guass
