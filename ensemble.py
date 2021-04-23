@@ -64,8 +64,7 @@ z = K.applications.DenseNet201(     weights = 'imagenet',
                                     input_shape = (224, 224, 3))
 
 
-^^^ Make sure classification layers are rmoved. Should be as simple as passing "include_top=False" to the model call
-Also, make sure all layers are frozen.
+## TODO --->>>> Make sure all layers in those models are frozen
 
 combinedinput = concatenate([x.output, y.output, z.output])
 
@@ -75,5 +74,6 @@ model = Model(inputs = [x.input, y.input, z.input], outputs = classifier)
 
 model.compile(hyperparams here)
 
-model.fit(x=combined_generator[0], y=combined_generator[1], validation_data = (NEEDTOMAKEGENERATORFORHERE),
+model.fit(x=combined_generator[0], y=combined_generator[1],
+            validation_data = (validate_combined_generator[0], validate_combined_generator[1]),
             epochs=100, batch_size=10)
