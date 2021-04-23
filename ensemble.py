@@ -3,7 +3,8 @@ from tensorflow import keras as K
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.layers import concatenate
 
-
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
 
 train_path_filtered = 'filter_gaussian/train/'
 valid_path_filtered = 'filter_gaussian/valid/'
@@ -15,8 +16,8 @@ test_path = 'images/test/'
 Datagen = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input)
 
 def generate_input(path1, path2):
-    gen1 = Datagen.flow_from_directory(directory=path1, target_size=(224,224), batch_size=10, seed=101)
-    gen2 = Datagen.flow_from_directory(directory=path2, target_size=(224,224), batch_size=10, seed=101)
+    gen1 = Datagen.flow_from_directory(directory=path1, target_size=(224,224), batch_size=50, seed=101)
+    gen2 = Datagen.flow_from_directory(directory=path2, target_size=(224,224), batch_size=50, seed=101)
 
     while True:
         x1 = gen1.next()
@@ -24,20 +25,20 @@ def generate_input(path1, path2):
         yield [x1[0], x1[0], x2[0]], x1[1]
 
 ##  Data with high pass filter
-train_batch_filtered = Datagen.flow_from_directory(
-    directory = train_path_filtered, target_size = (224,224), batch_size = 10)
-valid_batch_filtered = Datagen.flow_from_directory(
-    directory = valid_path_filtered, target_size = (224,224), batch_size = 10)
-test_batch_filtered = Datagen.flow_from_directory(
-    directory = test_path_filtered, target_size = (224,224), batch_size = 10, shuffle = False)
+#train_batch_filtered = Datagen.flow_from_directory(
+#    directory = train_path_filtered, target_size = (224,224), batch_size = 10)
+#valid_batch_filtered = Datagen.flow_from_directory(
+#    directory = valid_path_filtered, target_size = (224,224), batch_size = 10)
+#test_batch_filtered = Datagen.flow_from_directory(
+#    directory = test_path_filtered, target_size = (224,224), batch_size = 10, shuffle = False)
 
 ## Original images
-train_batch = Datagen.flow_from_directory(
-    directory = train_path, target_size = (224,224), batch_size = 10)
-valid_batch = Datagen.flow_from_directory(
-    directory = valid_path, target_size = (224,224), batch_size = 10)
-test_batch = Datagen.flow_from_directory(
-    directory = test_path, target_size = (224,224), batch_size = 10, shuffle = False)
+#train_batch = Datagen.flow_from_directory(
+#    directory = train_path, target_size = (224,224), batch_size = 10)
+#valid_batch = Datagen.flow_from_directory(
+#    directory = valid_path, target_size = (224,224), batch_size = 10)
+#test_batch = Datagen.flow_from_directory(
+#    directory = test_path, target_size = (224,224), batch_size = 10, shuffle = False)
 
 
 ## Not urgent, but lets make these calls more consistent with each other so it looks cleaner
@@ -90,7 +91,8 @@ CheckPoint = tf.keras.callbacks.ModelCheckpoint(filepath='/tmp/weights.hdf5', mo
                                                                save_best_only=False, save_weights_only=False, mode='auto')
 callbacks = [CheckPoint, tensorBoard]
 
-
-model.fit_generator(  generate_input(train_path, train_path_filtered),
-            validation_data = generate_input(valid_path, valid_path_filtered),
-            epochs=100, verbose=2, callbacks=callbacks)
+with tf.device('/device:GPU:0'):
+    model.fit_generator(  generate_input(train_path, train_path_filtered),
+                validation_data = generate_input(valid_path, valid_path_filtered),
+                steps_per_epoch=5545, epochs=100, verbose=2, callbacks=callbacks,
+                validation_steps=1576)
