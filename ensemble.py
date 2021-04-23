@@ -4,13 +4,6 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.layers import concatenate
 
 
-def input_generator(gen1, gen2):
-    x1 = gen1[0]
-    x2 = gen2[0]
-    y = gen1[1]
-
-    return [x1, x2], y
-
 
 train_path_filtered = 'filter_gaussian/train/'
 valid_path_filtered = 'filter_gaussian/valid/'
@@ -19,49 +12,53 @@ train_path = 'images/train/'
 valid_path = 'images/valid/'
 test_path = 'images/test/'
 
+Datagen = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input)
+
+def generate_input(path1, path2):
+    gen1 = Datagen.flow_from_directory(directory=path1, target_size=(224,224), batch_size=10, seed=101)
+    gen2 = Datagen.flow_from_directory(directory=path2, target_size=(224,224), batch_size=10, seed=101)
+
+    while True:
+        x1 = gen1.next()
+        x2 = gen2.next()
+        yield [x1[0], x1[0], x2[0]], x1[1]
+
 ##  Data with high pass filter
-train_batch_filtered = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+train_batch_filtered = Datagen.flow_from_directory(
     directory = train_path_filtered, target_size = (224,224), batch_size = 10)
-valid_batch_filtered = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+valid_batch_filtered = Datagen.flow_from_directory(
     directory = valid_path_filtered, target_size = (224,224), batch_size = 10)
-test_batch_filtered = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+test_batch_filtered = Datagen.flow_from_directory(
     directory = test_path_filtered, target_size = (224,224), batch_size = 10, shuffle = False)
 
 ## Original images
-train_batch = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+train_batch = Datagen.flow_from_directory(
     directory = train_path, target_size = (224,224), batch_size = 10)
-valid_batch = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+valid_batch = Datagen.flow_from_directory(
     directory = valid_path, target_size = (224,224), batch_size = 10)
-test_batch = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+test_batch = Datagen.flow_from_directory(
     directory = test_path, target_size = (224,224), batch_size = 10, shuffle = False)
-
-
-## For these two we should be able to use the same ImDataGen we already used.
-train_input1 = train_batch
-train_input2 = train_batch_filtered
-validate_input1 = valid_batch
-validate_input2 = valid_batch_filtered
-
-## This will be the actual input and labels for the model
-train_combined_generator = map(input_generator, train_input1, train_input2)
-validate_combined_generator = map(input_generator, validate_input1, validate_input2)
-
-
 
 
 ## Not urgent, but lets make these calls more consistent with each other so it looks cleaner
 x = K.applications.MobileNet(      weights = 'imagenet' ,
                     include_top = False,
                     input_shape = (224,224,3))
+for layer in x.layers:
+    layer.trainable = False
 
 y = K.applications.efficientnet.EfficientNetB0( weights = 'imagenet',
                     include_top = False,
                     input_shape = (224,224,3))
+for layer in y.layers:
+    layer.trainable = False
 
 
 z = K.applications.DenseNet201(    weights = 'imagenet',
                     include_top = False,
                     input_shape = (224, 224, 3))
+for layer in z.layers:
+    layer.trainable = False
 
 
 ## TODO --->>>> Make sure all layers in those models are frozen
@@ -81,6 +78,19 @@ model.compile(  optimizer=K.optimizers.Adam(),
                 metrics=['accuracy'])
 
 
-model.fit(  x=train_combined_generator[0], y=train_combined_generator[1],
-            validation_data = (validate_combined_generator[0], validate_combined_generator[1]),
-            epochs=100, batch_size=10)
+
+import datetime
+path = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+tensorBoard = tf.keras.callbacks.TensorBoard(log_dir=path, histogram_freq=0,
+                                                          write_grads=False, write_images=False, embeddings_freq=0,
+                                                          embeddings_layer_names=None, embeddings_metadata=None,
+                                                          embeddings_data=None, update_freq=50)
+
+CheckPoint = tf.keras.callbacks.ModelCheckpoint(filepath='/tmp/weights.hdf5', monitor='val_loss', verbose=0,
+                                                               save_best_only=False, save_weights_only=False, mode='auto')
+callbacks = [CheckPoint, tensorBoard]
+
+
+model.fit_generator(  generate_input(train_path, train_path_filtered),
+            validation_data = generate_input(valid_path, valid_path_filtered),
+            epochs=100, verbose=2, callbacks=callbacks)
