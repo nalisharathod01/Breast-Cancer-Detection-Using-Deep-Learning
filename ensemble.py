@@ -1,7 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras as K
-import efficientnet.keras as efn
-from keras.applications import MobileNet, DenseNet201
+from keras.applications import MobileNet, DenseNet201, EfficientNetB0
 
 
 def input_generator(gen1, gen2):
@@ -50,18 +49,18 @@ validate_combined_generator = map(input_generator, validate_input1, validate_inp
 
 
 ## Not urgent, but lets make these calls more consistent with each other so it looks cleaner
-x = tf.K.applications.mobilenet( weights = 'imagenet' ,
-                                include_top = False,
-                                 input_shape = (224,224,3))
+x = MobileNet(      weights = 'imagenet' ,
+                    include_top = False,
+                    input_shape = (224,224,3))
 
-y = efn( weights = 'imagenet',
-         include_top = False,
-         input_shape = (224,224,3))
+y = EfficientNetB0( weights = 'imagenet',
+                    include_top = False,
+                    input_shape = (224,224,3))
 
 
-z = K.applications.DenseNet201(     weights = 'imagenet',
-                                    include_top = False,
-                                    input_shape = (224, 224, 3))
+z = DenseNet201(    weights = 'imagenet',
+                    include_top = False,
+                    input_shape = (224, 224, 3))
 
 
 ## TODO --->>>> Make sure all layers in those models are frozen
