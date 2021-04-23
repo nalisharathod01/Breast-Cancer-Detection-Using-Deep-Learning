@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras as K
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.layers import concatenate
 
 
 def input_generator(gen1, gen2):
@@ -58,7 +59,7 @@ y = K.applications.efficientnet.EfficientNetB0( weights = 'imagenet',
                     input_shape = (224,224,3))
 
 
-z = DenseNet201(    weights = 'imagenet',
+z = K.applications.DenseNet201(    weights = 'imagenet',
                     include_top = False,
                     input_shape = (224, 224, 3))
 
@@ -73,12 +74,13 @@ classifier = K.layers.Dropout(0.5)(classifier)
 classifier = K.layers.BatchNormalization()(classifier)
 classifier = K.layers.Dense(2, activation='softmax')(classifier)
 
-model = Model(inputs = [x.input, y.input, z.input], outputs = classifier)
+model = K.Model(inputs = [x.input, y.input, z.input], outputs = classifier)
 
 model.compile(  optimizer=K.optimizers.Adam(),
                 loss='binary_crossentropy',
                 metrics=['accuracy'])
 
-model.fit(  x=combined_generator[0], y=combined_generator[1],
+
+model.fit(  x=train_combined_generator[0], y=train_combined_generator[1],
             validation_data = (validate_combined_generator[0], validate_combined_generator[1]),
             epochs=100, batch_size=10)
