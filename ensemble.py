@@ -66,9 +66,13 @@ z = K.applications.DenseNet201(     weights = 'imagenet',
 
 ## TODO --->>>> Make sure all layers in those models are frozen
 
-combinedinput = concatenate([x.output, y.output, z.output])
+combinedInput = concatenate([x.output, y.output, z.output])
 
-classifier = MAKE FULLY CONNECTED LAYERS AND CLASS. Layers here
+
+classifier = K.layers.GlobalAveragePooling2D()(combinedInput)
+classifier = K.layers.Dropout(0.5)(classifier)
+classifier = K.layers.BatchNormalization()(classifier)
+classifier = K.layers.Dense(2, activation='softmax')(classifier)
 
 model = Model(inputs = [x.input, y.input, z.input], outputs = classifier)
 
