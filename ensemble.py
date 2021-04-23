@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras as K
 
-import efficientnet.keras as EfficientNetB0
+import efficientnet.keras as efn
 
 
 def input_generator(gen1, gen2):
@@ -54,7 +54,7 @@ x = K.applications.MobileNet(      weights = 'imagenet' ,
                     include_top = False,
                     input_shape = (224,224,3))
 
-y = k.applications.EfficientNetB0( weights = 'imagenet',
+y = efn.EfficientNetB0( weights = 'imagenet',
                     include_top = False,
                     input_shape = (224,224,3))
 
