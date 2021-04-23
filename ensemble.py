@@ -15,7 +15,11 @@ def input_generator(gen1, gen2):
 train_path_filtered = 'filter_gaussian/train/'
 valid_path_filtered = 'filter_gaussian/valid/'
 test_path_filtered = 'filter_gaussian/test/'
+train_path = 'images/train/'
+valid_path = 'images/valid/'
+test_path = 'images/test/'
 
+##  Data with high pass filter
 train_batch_filtered = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
     directory = train_path_filtered, target_size = (224,224), batch_size = 10)
 valid_batch_filtered = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
@@ -23,13 +27,24 @@ valid_batch_filtered = ImageDataGenerator(preprocessing_function = K.application
 test_batch_filtered = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
     directory = test_path_filtered, target_size = (224,224), batch_size = 10, shuffle = False)
 
+## Original images
+train_batch = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+    directory = train_path, target_size = (224,224), batch_size = 10)
+valid_batch = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+    directory = valid_path, target_size = (224,224), batch_size = 10)
+test_batch = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input).flow_from_directory(
+    directory = test_path, target_size = (224,224), batch_size = 10, shuffle = False)
+
 
 ## For these two we should be able to use the same ImDataGen we already used.
-input1 = orig_images
-input2 = train_batch_filtered
+train_input1 = train_batch
+train_input2 = train_batch_filtered
+validate_input1 = valid_batch
+validate_input2 = valid_batch_filtered
 
 ## This will be the actual input and labels for the model
-combined_generator = map(input_generator, input1, input2)
+train_combined_generator = map(input_generator, train_input1, train_input2)
+validate_combined_generator = map(input_generator, validate_input1, validate_input2)
 
 
 
