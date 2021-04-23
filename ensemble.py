@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras as K
-from keras.applications import MobileNet, DenseNet201, EfficientNetB0
+
+import efficientnet.keras as EfficientNetB0
 
 
 def input_generator(gen1, gen2):
@@ -49,11 +50,11 @@ validate_combined_generator = map(input_generator, validate_input1, validate_inp
 
 
 ## Not urgent, but lets make these calls more consistent with each other so it looks cleaner
-x = MobileNet(      weights = 'imagenet' ,
+x = K.applications.MobileNet(      weights = 'imagenet' ,
                     include_top = False,
                     input_shape = (224,224,3))
 
-y = EfficientNetB0( weights = 'imagenet',
+y = k.applications.EfficientNetB0( weights = 'imagenet',
                     include_top = False,
                     input_shape = (224,224,3))
 
