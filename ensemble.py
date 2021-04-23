@@ -75,8 +75,10 @@ classifier = K.layers.Dense(2, activation='softmax')(classifier)
 
 model = Model(inputs = [x.input, y.input, z.input], outputs = classifier)
 
-model.compile(hyperparams here)
+model.compile(  optimizer=K.optimizers.Adam(),
+                loss='binary_crossentropy',
+                metrics=['accuracy'])
 
-model.fit(x=combined_generator[0], y=combined_generator[1],
+model.fit(  x=combined_generator[0], y=combined_generator[1],
             validation_data = (validate_combined_generator[0], validate_combined_generator[1]),
             epochs=100, batch_size=10)
