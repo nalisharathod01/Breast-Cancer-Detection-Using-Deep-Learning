@@ -48,6 +48,8 @@ validate_combined_generator = map(input_generator, validate_input1, validate_inp
 
 
 
+
+## Not urgent, but lets make these calls more consistent with each other so it looks cleaner
 x = tf.K.applications.mobilenet( weights = 'imagenet' ,
                                 include_top = False,
                                  input_shape = (224,224,3))
