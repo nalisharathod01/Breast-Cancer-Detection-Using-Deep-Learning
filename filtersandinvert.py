@@ -1,6 +1,3 @@
-## Keeping this code just in case, but it seems to be much less accurate converting to single channel images.
-## Will stick with RGB for now and tweak parameters to improve performance.
-
 import os
 import numpy as np
 from PIL import Image

@@ -1,3 +1,5 @@
+## This file was to test DenseNet on the High Pass FIltered images prior to choosing a set to use in the ensemble.
+
 import tensorflow as tf
 from tensorflow import keras as K
 from tensorflow.keras.preprocessing.image import ImageDataGenerator

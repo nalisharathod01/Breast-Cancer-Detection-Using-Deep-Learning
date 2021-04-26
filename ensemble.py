@@ -16,32 +16,15 @@ test_path = 'images/test/'
 Datagen = ImageDataGenerator(preprocessing_function = K.applications.mobilenet.preprocess_input)
 
 def generate_input(path1, path2):
-    gen1 = Datagen.flow_from_directory(directory=path1, target_size=(224,224), batch_size=50, seed=101)
-    gen2 = Datagen.flow_from_directory(directory=path2, target_size=(224,224), batch_size=50, seed=101)
+    gen1 = Datagen.flow_from_directory(directory=path1, target_size=(224,224), batch_size=250, seed=101)
+    gen2 = Datagen.flow_from_directory(directory=path2, target_size=(224,224), batch_size=250, seed=101)
 
     while True:
         x1 = gen1.next()
         x2 = gen2.next()
         yield [x1[0], x1[0], x2[0]], x1[1]
 
-##  Data with high pass filter
-#train_batch_filtered = Datagen.flow_from_directory(
-#    directory = train_path_filtered, target_size = (224,224), batch_size = 10)
-#valid_batch_filtered = Datagen.flow_from_directory(
-#    directory = valid_path_filtered, target_size = (224,224), batch_size = 10)
-#test_batch_filtered = Datagen.flow_from_directory(
-#    directory = test_path_filtered, target_size = (224,224), batch_size = 10, shuffle = False)
 
-## Original images
-#train_batch = Datagen.flow_from_directory(
-#    directory = train_path, target_size = (224,224), batch_size = 10)
-#valid_batch = Datagen.flow_from_directory(
-#    directory = valid_path, target_size = (224,224), batch_size = 10)
-#test_batch = Datagen.flow_from_directory(
-#    directory = test_path, target_size = (224,224), batch_size = 10, shuffle = False)
-
-
-## Not urgent, but lets make these calls more consistent with each other so it looks cleaner
 x = K.applications.MobileNet(      weights = 'imagenet' ,
                     include_top = False,
                     input_shape = (224,224,3))
@@ -61,8 +44,6 @@ z = K.applications.DenseNet201(    weights = 'imagenet',
 for layer in z.layers:
     layer.trainable = False
 
-
-## TODO --->>>> Make sure all layers in those models are frozen
 
 combinedInput = concatenate([x.output, y.output, z.output])
 
@@ -96,3 +77,5 @@ with tf.device('/device:GPU:0'):
                 validation_data = generate_input(valid_path, valid_path_filtered),
                 steps_per_epoch=5545, epochs=100, verbose=2, callbacks=callbacks,
                 validation_steps=1576)
+                
+model.save('final_model')
